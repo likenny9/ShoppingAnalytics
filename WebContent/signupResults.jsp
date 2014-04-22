@@ -11,23 +11,31 @@
         
 		<%
 		String user  = request.getParameter("name");
-		String role  = request.getParameter("role");
-		String age   = request.getParameter("age");
+		String role  = request.getParameter("role"); 
+		Integer age = null;
+		try {
+			age = Integer.parseInt(request.getParameter("age")); }
+		catch(NumberFormatException e) { 
+			
+		}
 		String state = request.getParameter("state");
 		String stringResults;
+		boolean addToDatabase;
 		%>	
 			
 		<%	
 		if(!(user.equals(null)) && 
-		   !(age.equals(null)) && 
+		   (age != null) && 
 		   !(role.equals("noRole")) && 
 		   !(state.equals("noState")))
 		{
 		   stringResults = "Welcome " + user;
+		   addToDatabase = true;
 		}
 		else
 		{
 		   stringResults = "Your signup failed";
+		   addToDatabase = false;
 		}
 		%>
 		
@@ -36,6 +44,8 @@
 		<%-- -------- Open Connection Code -------- --%>
         
         <%
+        
+        if(addToDatabase) {
             
             Connection conn = null;
             PreparedStatement pstmt = null;
@@ -94,7 +104,7 @@
                 if (pstmt != null) {
                     try {
                         pstmt.close();
-                    } catch (SQLException e) { } // Ignore
+                    } catch (SQLException e) { %> Sign Up <font size="24" color="red"><b>FAILED</b></font> <% } // Ignore
                     pstmt = null;
                 }
                 if (conn != null) {
@@ -104,6 +114,7 @@
                     conn = null;
                 }
             }
+        }
           %>
 
 	</body>
