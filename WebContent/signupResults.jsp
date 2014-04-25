@@ -9,7 +9,8 @@
         <%@ page import="java.sql.*"%>
         
 		<%
-		String user  = request.getParameter("name"); //Name			
+		String user  = request.getParameter("name"); //Name	
+		session.setAttribute("name", user); //Saves the name for the session.
 		String role  = request.getParameter("role"); //Role 
 		Integer age = null;
 		try {
@@ -144,7 +145,11 @@
                 conn = null;
             }
         }
-          %>
+        
+        //Page redirect
+	   	response.setHeader("refresh", "2;URL=mainMenu.jsp"); 
+        %>
+          
 
 	</body>
 </html>

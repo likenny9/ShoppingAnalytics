@@ -1,10 +1,18 @@
 <html>
 	<head>
-		<title>Logging In...</title>
+		<title>Menu</title>
+		
+		<style type="text/css">
+			#productsButton {
+				width: 200px; height=175px;
+			}
+		</style>
+		
 	</head>
 	<body>
 		<%
 		String user  = request.getParameter("name"); //Gets name
+		session.setAttribute("name",user); //Saves name for the session
 		String stringResults = ""; //Result of user input
 		String databaseName = null; //Result of database query
 		
@@ -97,8 +105,16 @@
         else {
         	stringResults = "Hello " + databaseName;
         }
-	%>
+		%>
 	
-	<div style="text-align:center"><font size=24><b><%= stringResults %></b></font></div>
+		<div style="text-align:center">
+			<font size=24><b><%= stringResults %></b></font>
+			<br/>What do you want to do?
+					
+			<form method="GET" action="products.jsp">
+				<input name="action" id="productsButton" type="submit" value="Products Management"/>
+			</form>
+		</div>
+		
 	</body>
 </html>
