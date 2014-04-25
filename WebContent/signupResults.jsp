@@ -54,10 +54,10 @@
      		 databaseName = rs.getString("name");
      	 }
      	
-		 if(user.equals(databaseName)) 
+		 if(user.equals(databaseName) && !(user.equals(null))) 
 		 {
 		 	 stringResults = "SIGNUP FAILED";
-	         %> <div style="text-align:center">Username is already taken!<br/> Redirecting to previous page...</div><br/> <%
+	         %> <div style="text-align:center">Username is already taken!</div><br/> <%
 			 addToDatabase = false;
 		 }
 		 else if(!(user.equals(null)) && 
