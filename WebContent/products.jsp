@@ -6,7 +6,7 @@
 		
 		<!-- Displays the name at the top. -->
 		<% String user = (String) session.getAttribute("name"); //Gets name %>
-		<b>Hello <%=user%></b>
+		<b>Hello <%=user%></b><p/>
 		
 		<%-- Import the java.sql package --%>
         <%@ page import="java.sql.*"%>
@@ -116,9 +116,9 @@
 
                 // Use the created statement to SELECT
                 // the product attributes FROM the products table.
-                rs = statement.executeQuery("SELECT products.id, products.name, sku,"
-                		+ "categories.name, price, signup.name FROM products, categories , signup "
-                		+ "WHERE products.owner=signup.id");
+                rs = statement.executeQuery("SELECT products.id, products.name, sku, categories.name AS category_name, "
+                		+ "price, signup.name AS user_name FROM products, categories , signup "
+                		+ "WHERE products.owner=signup.id AND products.category = categories.id");
             %>
             	
             <!-- Add an HTML table header row to format the results -->
@@ -174,7 +174,7 @@
 	
 	                <%-- Get the middle name --%>
 	                <td>
-	                    <input value="<%=rs.getString("name")%>" name="category" size="15"/>
+	                    <input value="<%=rs.getString("category_name")%>" name="category" size="15"/>
 	                </td>
 	
 	                <%-- Get the last name --%>
@@ -184,7 +184,7 @@
 	                
 	                <%-- Get the last name --%>
 	                <td>
-	                    <input value="<%=rs.getString("name")%>" name="owner" size="15"/>
+	                    <input value="<%=rs.getString("user_name")%>" name="owner" size="15"/>
 	                </td>                
 	
 	                <%-- Button --%>

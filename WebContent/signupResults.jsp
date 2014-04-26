@@ -146,8 +146,15 @@
             }
         }
         
-        //Page redirect
-	   	response.setHeader("refresh", "2;URL=mainMenu.jsp"); 
+        if(addToDatabase) {
+        	//Page redirect
+	   		//response.setHeader("refresh", "2;URL=mainMenu.jsp"); 
+			%>
+			<div style="text-align:center"><form method="GET" action="login.jsp">
+				<input name="action" id="buttonAttr" type="submit" value="Click to Log In"/>
+			</form></div>
+			<%
+        }
         %>
           
 

@@ -3,7 +3,7 @@
 		<title>Menu</title>
 		
 		<style type="text/css">
-			#productsButton {
+			#buttonAttr {
 				width: 200px; height=175px;
 			}
 		</style>
@@ -109,11 +109,24 @@
 	
 		<div style="text-align:center">
 			<font size=24><b><%= stringResults %></b></font>
-			<br/>What do you want to do?
-					
-			<form method="GET" action="products.jsp">
-				<input name="action" id="productsButton" type="submit" value="Products Management"/>
+			
+			<% 
+			if(databaseName != null) {
+			%>
+			
+			<br/>What do you want to do?<p/>
+			
+			<form method="GET" action="categories.jsp">
+				<input name="action" id="buttonAttr" type="submit" value="Categories Management"/>
 			</form>
+			
+			<form method="GET" action="products.jsp">
+				<input name="action" id="buttonAttr" type="submit" value="Products Management"/>
+			</form>
+			
+			<%
+			}
+			%>
 		</div>
 		
 	</body>
