@@ -23,7 +23,16 @@
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
+        
         ResultSet categoryResult = null;
+        String categoryResults = null;
+        
+        ResultSet categoryIDResult = null;
+        int categoryID = 0;
+        ResultSet signupIDResult = null;
+        int signupID = 0;
+        
+        
         
         try {
             // Registering Postgresql JDBC driver with the DriverManager
@@ -46,9 +55,19 @@
 	                // Begin transaction
 	                conn.setAutoCommit(false);
 					
-	                //Statement statement = conn.createStatement();
+	                Statement catIDStatement = conn.createStatement();
+	                categoryIDResult = catIDStatement.executeQuery("SELECT id FROM categories WHERE name='"+request.getParameter("category")+"'");
+	                while(categoryIDResult.next()) {
+	                	
+	                	categoryID = categoryIDResult.getInt("id");
+	                }
 	                
-	                //rs = statement.executeQuery("SELECT category FROM categories WHERE 
+	                Statement signupStatement = conn.createStatement();
+	                signupIDResult = signupStatement.executeQuery("SELECT id FROM signup WHERE name='"+request.getParameter("owner")+"'");
+	                while(signupIDResult.next()) {
+	                	signupID = signupIDResult.getInt("id");
+	                }
+	                
 	                // Create the prepared statement and use it to
 	                // INSERT product values INTO the products table.
 	                pstmt = conn
@@ -56,9 +75,9 @@
 	
 	                pstmt.setString(1, request.getParameter("name"));
 	                pstmt.setString(2, request.getParameter("sku"));
-                    pstmt.setInt(1, Integer.parseInt(request.getParameter("category_id")));
-	                pstmt.setString(4, request.getParameter("price"));
-	                pstmt.setString(5, request.getParameter("owner_id"));
+                   	pstmt.setInt(3, categoryID);
+                    pstmt.setInt(4, Integer.parseInt(request.getParameter("price")));
+	                pstmt.setInt(5, signupID);
 	                int rowCount = pstmt.executeUpdate();
 	
 	                // Commit transaction
@@ -153,8 +172,9 @@
                     <th><input value="" name="sku" size="15"/></th>
                     <th><select name="category">
 						<option value="noCategory">--Choose One--</option>
-						<% while(categoryResult.next()) {%>
-						<option value=""><%=categoryResult.getString("name")%></option>
+						<% while(categoryResult.next()) {
+							categoryResults = categoryResult.getString("name");%>
+						<option name="category" value="<%=categoryResults%>"><%=categoryResults%></option>
 						<% } %>
 						</select></th>
                     <th><input value="" name="price" size="15"/></th>
@@ -180,27 +200,27 @@
 	                    <%=rs.getInt("id")%>
 	                </td>
 	
-	                <%-- Get the pid --%>
+	                <%-- Get the name --%>
 	                <td>
 	                    <input value="<%=rs.getString("name")%>" name="name" size="15"/>
 	                </td>
 	
-	                <%-- Get the first name --%>
+	                <%-- Get the sku --%>
 	                <td>
 	                    <input value="<%=rs.getString("sku")%>" name="sku" size="15"/>
 	                </td>
 	
-	                <%-- Get the middle name --%>
+	                <%-- Get the category --%>
 	                <td>
 	                    <input value="<%=rs.getString("category_name")%>" name="category" size="15"/>
 	                </td>
 	
-	                <%-- Get the last name --%>
+	                <%-- Get the price --%>
 	                <td>
 	                    <input value="<%=rs.getString("price")%>" name="price" size="15"/>
 	                </td>
 	                
-	                <%-- Get the last name --%>
+	                <%-- Get the owner name --%>
 	                <td>
 	                    <input value="<%=rs.getString("user_name")%>" name="owner" size="15"/>
 	                </td>                

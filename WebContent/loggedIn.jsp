@@ -94,7 +94,7 @@
     		%>
     		<div style="text-align:center">
     		<b>Log In</b>
-    				<form method="GET" action="mainMenu.jsp">
+    				<form method="GET" action="loggedIn.jsp">
     					<p>Username: <input size="20" name="name" value=""/><p />
     				
     					<input name="action" type="submit" value="Login"/>

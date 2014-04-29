@@ -129,14 +129,13 @@
             </tr>
 
             <tr>
-                <form action="categories.jsp" method="POST" id="categoryform">
+                <form action="categories.jsp" method="POST">
                     <input type="hidden" name="action" value="insert"/>
                     <th>&nbsp;</th>
                     <th><input value="" name="name" size="10"/></th>
-                   
+                    <th><textarea name="description" style="resize:none" rows="4" cols="50"></textarea></th>
                     <th><input type="submit" value="Insert"/></th>
                 </form>
-                <th><textarea style="resize:none" rows="4" cols="50" form="categoryform"></textarea></th>
             </tr>
 
             <%-- -------- Iteration Code -------- --%>
@@ -162,7 +161,7 @@
 
                 <%-- Get the description --%>
                 <td>
-                    <input value="<%=rs.getString("description")%>" name="description"/>
+                    <textarea value="" style="resize:none" rows="4" cols="50" name="description"><%=rs.getString("description")%></textarea>
                 </td>
 
                 
