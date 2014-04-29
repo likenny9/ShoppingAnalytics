@@ -4,9 +4,15 @@
 	</head>
 	<body>
 		
-		<!-- Displays the name at the top. -->
-		<% String user = (String) session.getAttribute("name"); //Gets name %>
-		<b>Hello <%=user%></b><p/>
+		<b>Products Management</b><p/>
+		
+		<table>
+		<tr>
+	    	<td valign="top">
+	            <%-- -------- Include menu HTML code -------- --%>
+	            <jsp:include page="mainMenu.jsp" />
+	        </td>
+	        <td>
 		
 		<%-- Import the java.sql package --%>
         <%@ page import="java.sql.*"%>
@@ -17,6 +23,7 @@
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
+        ResultSet categoryResult = null;
         
         try {
             // Registering Postgresql JDBC driver with the DriverManager
@@ -28,9 +35,7 @@
                 "user=postgres&password=postgres");
         %>
 		
-		<table border="4">
-    	<tr>
-        <td>
+		<table border="4" >
             
 	        <%-- -------- INSERT Code -------- --%>
 	        <%
@@ -40,17 +45,20 @@
 	
 	                // Begin transaction
 	                conn.setAutoCommit(false);
-	
+					
+	                //Statement statement = conn.createStatement();
+	                
+	                //rs = statement.executeQuery("SELECT category FROM categories WHERE 
 	                // Create the prepared statement and use it to
 	                // INSERT product values INTO the products table.
 	                pstmt = conn
-	                .prepareStatement("INSERT INTO products (name, sku, category, price, owner) VALUES (?, ?, ?, ?, ?)");
+	                .prepareStatement("INSERT INTO products (name, sku, category, price, owner) VALUES (?, ?, ?, ?, ?) ");
 	
 	                pstmt.setString(1, request.getParameter("name"));
 	                pstmt.setString(2, request.getParameter("sku"));
-	                pstmt.setString(3, request.getParameter("category"));
+                    pstmt.setInt(1, Integer.parseInt(request.getParameter("category_id")));
 	                pstmt.setString(4, request.getParameter("price"));
-	                pstmt.setString(5, request.getParameter("owner"));
+	                pstmt.setString(5, request.getParameter("owner_id"));
 	                int rowCount = pstmt.executeUpdate();
 	
 	                // Commit transaction
@@ -113,12 +121,17 @@
             <%
                 // Create the statement
                 Statement statement = conn.createStatement();
+            
+            	//
+            	Statement categoryStatement = conn.createStatement();
 
                 // Use the created statement to SELECT
                 // the product attributes FROM the products table.
                 rs = statement.executeQuery("SELECT products.id, products.name, sku, categories.name AS category_name, "
                 		+ "price, signup.name AS user_name FROM products, categories , signup "
                 		+ "WHERE products.owner=signup.id AND products.category = categories.id");
+                
+                categoryResult = categoryStatement.executeQuery("SELECT name FROM categories");
             %>
             	
             <!-- Add an HTML table header row to format the results -->
@@ -138,7 +151,12 @@
                     <th>&nbsp;</th>
                     <th><input value="" name="name" size="10"/></th>
                     <th><input value="" name="sku" size="15"/></th>
-                    <th><input value="" name="category" size="15"/></th>
+                    <th><select name="category">
+						<option value="noCategory">--Choose One--</option>
+						<% while(categoryResult.next()) {%>
+						<option value=""><%=categoryResult.getString("name")%></option>
+						<% } %>
+						</select></th>
                     <th><input value="" name="price" size="15"/></th>
                     <th><input value="" name="owner" size="15"/></th>
                     <th><input type="submit" value="Insert Product"/></th>
@@ -156,7 +174,7 @@
                 
                     <input type="hidden" name="action" value="Update Product"/>
                     <input type="hidden" name="id" value="<%=rs.getInt("id")%>"/>
-
+                    
 	                <%-- Get the id --%>
 	                <td>
 	                    <%=rs.getInt("id")%>
@@ -213,9 +231,15 @@
             <%
                 // Close the ResultSet
                 rs.close();
+            
+            	// Close category ResultSelt
+            	categoryResult.close();
 
                 // Close the Statement
                 statement.close();
+                
+                // Close category statement
+                categoryStatement.close();
 
                 // Close the Connection
                 conn.close();
@@ -234,6 +258,12 @@
                         rs.close();
                     } catch (SQLException e) { } // Ignore
                     rs = null;
+                }
+                if (categoryResult != null) {
+                    try {
+                        categoryResult.close();
+                    } catch (SQLException e) { } // Ignore
+                    categoryResult = null;
                 }
                 if (pstmt != null) {
                     try {
