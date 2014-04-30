@@ -19,10 +19,12 @@
         
         <%-- -------- Open Connection Code -------- --%>
         <%
+        String user = (String) session.getAttribute("name"); //Gets name
         
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
+        String rsResults = null;
         
         ResultSet categoryResult = null;
         String categoryResults = null;
@@ -32,7 +34,10 @@
         ResultSet signupIDResult = null;
         int signupID = 0;
         
-        
+        ResultSet categoryIDUpdateR = null;
+        int categoryIDUpdate = 0;
+        ResultSet signupIDUpdateR = null;
+        int signupIDUpdate = 0;
         
         try {
             // Registering Postgresql JDBC driver with the DriverManager
@@ -42,6 +47,15 @@
             conn = DriverManager.getConnection(
                 "jdbc:postgresql://localhost/cse135?" +
                 "user=postgres&password=postgres");
+            
+            //Find category ID
+            Statement catIDStatement = conn.createStatement();
+            //Find owner ID
+            Statement signupStatement = conn.createStatement();
+            //Find category ID
+            Statement catIDUpdateStatement = conn.createStatement();
+            //Find owner ID
+            Statement signupIDUpdateStatement = conn.createStatement();
         %>
 		
 		<table border="4" >
@@ -55,14 +69,12 @@
 	                // Begin transaction
 	                conn.setAutoCommit(false);
 					
-	                Statement catIDStatement = conn.createStatement();
 	                categoryIDResult = catIDStatement.executeQuery("SELECT id FROM categories WHERE name='"+request.getParameter("category")+"'");
 	                while(categoryIDResult.next()) {
 	                	
 	                	categoryID = categoryIDResult.getInt("id");
 	                }
 	                
-	                Statement signupStatement = conn.createStatement();
 	                signupIDResult = signupStatement.executeQuery("SELECT id FROM signup WHERE name='"+request.getParameter("owner")+"'");
 	                while(signupIDResult.next()) {
 	                	signupID = signupIDResult.getInt("id");
@@ -76,7 +88,7 @@
 	                pstmt.setString(1, request.getParameter("name"));
 	                pstmt.setString(2, request.getParameter("sku"));
                    	pstmt.setInt(3, categoryID);
-                    pstmt.setInt(4, Integer.parseInt(request.getParameter("price")));
+                    pstmt.setDouble(4, Double.parseDouble(request.getParameter("price")));
 	                pstmt.setInt(5, signupID);
 	                int rowCount = pstmt.executeUpdate();
 	
@@ -93,18 +105,29 @@
 
                     // Begin transaction
                     conn.setAutoCommit(false);
+                    
+	                categoryIDUpdateR = catIDUpdateStatement.executeQuery("SELECT id FROM categories WHERE name='"+request.getParameter("category")+"'");
+	                while(categoryIDUpdateR.next()) {
+	                	
+	                	categoryIDUpdate = categoryIDUpdateR.getInt("id");
+	                }
+	                
+	                signupIDUpdateR = signupIDUpdateStatement.executeQuery("SELECT id FROM signup WHERE name='"+request.getParameter("owner")+"'");
+	                while(signupIDUpdateR.next()) {
+	                	signupIDUpdate = signupIDUpdateR.getInt("id");
+	                }
 
                     // Create the prepared statement and use it to
                     // UPDATE product values in the products table.
                     pstmt = conn
                         .prepareStatement("UPDATE products SET name = ?, sku = ?, "
-                            + "category, price = ?, owner = ? WHERE id = ?");
+                            + "category = ?, price = ?, owner = ? WHERE id = ?");
 
                     pstmt.setString(1, request.getParameter("name"));
                     pstmt.setString(2, request.getParameter("sku"));
-                    pstmt.setString(3, request.getParameter("category"));
-                    pstmt.setString(4, request.getParameter("price"));
-                    pstmt.setString(5, request.getParameter("owner"));
+                   	pstmt.setInt(3, categoryIDUpdate);
+                    pstmt.setDouble(4, Double.parseDouble(request.getParameter("price")));
+	                pstmt.setInt(5, signupIDUpdate);
                     pstmt.setInt(6, Integer.parseInt(request.getParameter("id")));
                     int rowCount = pstmt.executeUpdate();
 
@@ -147,7 +170,7 @@
                 // Use the created statement to SELECT
                 // the product attributes FROM the products table.
                 rs = statement.executeQuery("SELECT products.id, products.name, sku, categories.name AS category_name, "
-                		+ "price, signup.name AS user_name FROM products, categories , signup "
+                		+ "price, signup.name AS user_name FROM products, categories, signup "
                 		+ "WHERE products.owner=signup.id AND products.category = categories.id");
                 
                 categoryResult = categoryStatement.executeQuery("SELECT name FROM categories");
@@ -178,8 +201,8 @@
 						<% } %>
 						</select></th>
                     <th><input value="" name="price" size="15"/></th>
-                    <th><input value="" name="owner" size="15"/></th>
-                    <th><input type="submit" value="Insert Product"/></th>
+                    <td><input type="text" name="owner" value="<%=user%>" size="15" readonly/></td>
+                    <th><input type="submit" value="Insert"/></th>
                 </form>
             </tr>
 
@@ -192,7 +215,7 @@
             <tr>
                 <form action="products.jsp" method="POST">
                 
-                    <input type="hidden" name="action" value="Update Product"/>
+                    <input type="hidden" name="action" value="update"/>
                     <input type="hidden" name="id" value="<%=rs.getInt("id")%>"/>
                     
 	                <%-- Get the id --%>
@@ -212,7 +235,10 @@
 	
 	                <%-- Get the category --%>
 	                <td>
-	                    <input value="<%=rs.getString("category_name")%>" name="category" size="15"/>
+	                    <select name="category">
+						<% rsResults = rs.getString("category_name");%>
+						<option name="category" value="<%=rsResults%>" size="15"><u><%=rsResults%></u></option>
+						</select>
 	                </td>
 	
 	                <%-- Get the price --%>
@@ -222,12 +248,12 @@
 	                
 	                <%-- Get the owner name --%>
 	                <td>
-	                    <input value="<%=rs.getString("user_name")%>" name="owner" size="15"/>
+	                    <input value="<%=rs.getString("user_name")%>" name="owner" size="15" readonly/>
 	                </td>                
 	
 	                <%-- Button --%>
 	                <td>
-	                	<input type="submit" value="Update Product">
+	                	<input type="submit" value="Update">
 	                </td>
                 	
                 </form>
@@ -238,7 +264,7 @@
                 
                		 <%-- Button --%>
                		 <td>
-                		<input type="submit" value="Delete Product"/>
+                		<input type="submit" value="Delete"/>
                 	</td>
                 </form>
             </tr>
@@ -254,13 +280,30 @@
             
             	// Close category ResultSelt
             	categoryResult.close();
+            	
+            	// Category ID
+            	//categoryIDResult.close();
+            	
+            	//Close signup ID
+            	//signupIDResult.close();
+            	
+            	// Category ID
+            	//categoryIDUpdateR.close();
+            	
+            	//Close signup ID
+            	//signupIDUpdateR.close();
 
                 // Close the Statement
                 statement.close();
                 
                 // Close category statement
                 categoryStatement.close();
-
+                
+                catIDUpdateStatement.close();
+                
+                signupStatement.close();
+                signupIDUpdateStatement.close();
+               
                 // Close the Connection
                 conn.close();
             } catch (SQLException e) {
@@ -285,6 +328,31 @@
                     } catch (SQLException e) { } // Ignore
                     categoryResult = null;
                 }
+                if (categoryIDResult != null) {
+                    try {
+                        categoryIDResult.close();
+                    } catch (SQLException e) { } // Ignore
+                    categoryIDResult = null;
+                }
+                if (categoryIDUpdateR != null) {
+                    try {
+                        categoryIDUpdateR.close();
+                    } catch (SQLException e) { } // Ignore
+                    categoryIDUpdateR = null;
+                }
+                if (signupIDResult != null) {
+                    try {
+                        signupIDResult.close();
+                    } catch (SQLException e) { } // Ignore
+                    signupIDResult = null;
+                }
+                if (signupIDUpdateR != null) {
+                    try {
+                        signupIDUpdateR.close();
+                    } catch (SQLException e) { } // Ignore
+                    signupIDUpdateR = null;
+                }
+                
                 if (pstmt != null) {
                     try {
                         pstmt.close();
@@ -304,5 +372,52 @@
         </td>
     	</tr>
 		</table>
+		<p><u>Sort by Categories</u></p>
+		<% 
+		Connection conn2 = null;
+        PreparedStatement pstmt2 = null;
+        ResultSet rs2 = null;
+        
+        // Close the ResultSet
+        //rs2.close();
+        //conn2.close();
+        try {
+            // Registering Postgresql JDBC driver with the DriverManager
+            Class.forName("org.postgresql.Driver");
+
+            // Open a connection to the database using DriverManager
+            conn = DriverManager.getConnection(
+                "jdbc:postgresql://localhost/cse135?" +
+                "user=postgres&password=postgres");
+        } 
+        catch (SQLException e) {
+
+            // Wrap the SQL exception in a runtime exception to propagate
+            // it upwards
+            throw new RuntimeException(e);
+        }
+        finally {
+            // Release resources in a finally block in reverse-order of
+            // their creation
+            if (rs2 != null) {
+                try {
+                    rs2.close();
+                } catch (SQLException e) { } // Ignore
+                rs2 = null;
+            }
+            if (pstmt2 != null) {
+                try {
+                    pstmt2.close();
+                } catch (SQLException e) { } // Ignore
+                pstmt2 = null;
+            }
+            if (conn2 != null) {
+                try {
+                    conn2.close();
+                } catch (SQLException e) { } // Ignore
+                conn2 = null;
+            }
+        }
+        %>
 	</body>
 </html>
