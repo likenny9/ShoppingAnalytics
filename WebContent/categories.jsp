@@ -28,6 +28,7 @@
             Connection conn = null;
             PreparedStatement pstmt = null;
             ResultSet rs = null;
+            ResultSet rs2 = null;
             
             try {
                 // Registering Postgresql JDBC driver with the DriverManager
@@ -114,6 +115,7 @@
             <%
                 // Create the statement
                 Statement statement = conn.createStatement();
+                Statement statement2 = conn.createStatement();
 
                 // Use the created statement to SELECT
                 // the category attributes FROM the Category table.
@@ -164,17 +166,30 @@
                     <textarea value="" style="resize:none" rows="4" cols="50" name="description"><%=rs.getString("description")%></textarea>
                 </td>
 
-                
-
                 <%-- Button --%>
                 <td><input type="submit" value="Update"></td>
                 </form>
-                <form action="categories.jsp" method="POST">
-                    <input type="hidden" name="action" value="delete"/>
-                    <input type="hidden" value="<%=rs.getInt("id")%>" name="id"/>
-                    <%-- Button --%>
-                <td><input type="submit" value="Delete"/></td>
-                </form>
+                
+                
+	            <%
+	                
+	
+	                // Use the created statement to SELECT
+	                // the category attributes FROM the Category table.
+	                int y = rs.getInt("id");
+	                rs2 = statement2.executeQuery("SELECT p.id FROM products AS p WHERE p.category ='"+y+"' ");
+	                	if(!(rs2.next())) {
+			    %>
+		                <form action="categories.jsp" method="POST">
+		                    <input type="hidden" name="action" value="delete"/>
+		                    <input type="hidden" value="<%=rs.getInt("id")%>" name="id"/>
+		                    <%-- Button --%>
+		                <td><input type="submit" value="Delete"/></td>
+		                </form>
+		                
+		        <%
+	                	}
+                %>
             </tr>
 
             <%
@@ -188,14 +203,19 @@
 
                 // Close the Statement
                 statement.close();
-
+            	
+	            // Close the ResultSet
+	            rs2.close();
+	
+	            // Close the Statement
+	            statement2.close();
+	            
                 // Close the Connection
                 conn.close();
             } catch (SQLException e) {
 
-                // Wrap the SQL exception in a runtime exception to propagate
-                // it upwards
-                throw new RuntimeException(e);
+            	//This will catch all exceptions and show this error message.
+                %><p><b>Failure to insert or update category. <br/> Please click on Categories and try again.</b></p> <% 
             }
             finally {
                 // Release resources in a finally block in reverse-order of

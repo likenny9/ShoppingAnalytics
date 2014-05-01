@@ -16,16 +16,17 @@
 		
 		<br/>What to do?<p/>
 		
-		<form method="GET" action="mainMenu.jsp">
+		<form method="GET" action="mainMenuC.jsp">
 			<input name="action" id="buttonAttr" type="submit" value="Main Menu"/>
 		</form>
 		
-		<form method="GET" action="categories.jsp">
-			<input name="action" id="buttonAttr" type="submit" value="Categories Management"/>
+		<form method="GET" action="browseProducts.jsp">
+			<input name="action" id="buttonAttr" type="submit" value="Browse Products"/>
 		</form>
 		
-		<form method="GET" action="products.jsp">
-			<input name="action" id="buttonAttr" type="submit" value="Products Management"/>
+		<form method="GET" action="shoppingCart.jsp">
+			<input name="action" id="buttonAttr" type="submit" value="Shopping Cart"/>
 		</form>
+
 	</body>
 </html>

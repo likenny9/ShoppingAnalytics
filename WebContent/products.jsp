@@ -11,8 +11,7 @@
 	    	<td valign="top">
 	            <%-- -------- Include menu HTML code -------- --%>
 	            <jsp:include page="mainMenu.jsp" />
-	        </td>
-	        <td>
+
 		
 		<%-- Import the java.sql package --%>
         <%@ page import="java.sql.*"%>
@@ -24,6 +23,7 @@
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
+        ResultSet rs2 = null;
         String rsResults = null;
         
         ResultSet categoryResult = null;
@@ -58,6 +58,35 @@
             Statement signupIDUpdateStatement = conn.createStatement();
         %>
 		
+		<%-- -------- SORT By Categories Code -------- --%>
+		<p><u>Sort by Categories</u></p>
+		<% 
+        // Create the statement
+        Statement categoryListStatement = conn.createStatement();
+
+        // Use the created statement to SELECT
+        // the category attributes FROM the Category table.
+        rs = categoryListStatement.executeQuery("SELECT name FROM categories");
+        %>
+        
+        <form action="products.jsp" method="POST">
+            <input type="hidden" name="action" value="sortAll"/>
+        	<input name="action" type="submit" value="All Products"/>
+        </form>
+        <%
+        while(rs.next()) {
+        	%>
+       	    <form action="products.jsp" method="POST">
+               <input type="hidden" name="action" value="sort"/>
+               <input name="sortedCats" type="submit" value="<%=rs.getString("name")%>"/>
+
+        	</form>
+        	<% 
+        }
+        %>
+       	</td>
+       	
+	    <td valign="top">
 		<table border="4" >
             
 	        <%-- -------- INSERT Code -------- --%>
@@ -91,7 +120,14 @@
                     pstmt.setDouble(4, Double.parseDouble(request.getParameter("price")));
 	                pstmt.setInt(5, signupID);
 	                int rowCount = pstmt.executeUpdate();
-	
+					
+	                %>
+	                <b><font size="10">INSERT CONFIRMATION:</font></b><br/>
+	                <b>Name:</b> <%=request.getParameter("name")%> -
+	                <b>SKU:</b> <%=request.getParameter("sku")%> -
+	                <b>Category:</b> <%=request.getParameter("category")%> -
+	                <b>Price:</b> <%=request.getParameter("price")%>          
+	                <% 
 	                // Commit transaction
 	                conn.commit();
 	                conn.setAutoCommit(true);
@@ -161,19 +197,23 @@
 
             <%-- -------- SELECT Statement Code -------- --%>
             <%
-                // Create the statement
                 Statement statement = conn.createStatement();
             
-            	//
             	Statement categoryStatement = conn.createStatement();
 
-                // Use the created statement to SELECT
-                // the product attributes FROM the products table.
-                rs = statement.executeQuery("SELECT products.id, products.name, sku, categories.name AS category_name, "
+            	if(action != null && !(action.equals("sort"))) {
+                	rs = statement.executeQuery("SELECT products.id, products.name, sku, categories.name AS category_name, "
                 		+ "price, signup.name AS user_name FROM products, categories, signup "
                 		+ "WHERE products.owner=signup.id AND products.category = categories.id");
-                
+            	}
+            	else if(action != null && action.equals("sort")) {
+            		rs = statement.executeQuery("SELECT products.id, products.name, sku, categories.name AS category_name, "
+                    	+ "price, signup.name AS user_name FROM products, categories, signup "
+                    	+ "WHERE products.owner=signup.id AND products.category = categories.id AND categories.name='"+request.getParameter("sortedCats")+"'");
+            	}
                 categoryResult = categoryStatement.executeQuery("SELECT name FROM categories");
+                
+                if(rs != null) {
             %>
             	
             <!-- Add an HTML table header row to format the results -->
@@ -236,8 +276,20 @@
 	                <%-- Get the category --%>
 	                <td>
 	                    <select name="category">
-						<% rsResults = rs.getString("category_name");%>
+						<% rsResults = rs.getString("category_name"); //Displays category name%>
 						<option name="category" value="<%=rsResults%>" size="15"><u><%=rsResults%></u></option>
+						<% 
+						//Second ResultSet to list the rest of the category names in the dropdown
+						Statement categoryDropDown = conn.createStatement();
+						rs2 = categoryDropDown.executeQuery("SELECT name FROM categories");
+						while(rs2.next()) {
+							if(!(rs2.getString("name").equals(rsResults))) { //if it's not the category already listed
+								%> 
+								<option name="category" value="<%=rs2.getString("name")%>" size="15"><u><%=rs2.getString("name")%></u></option>
+								<%
+							}
+						}
+						%>
 						</select>
 	                </td>
 	
@@ -270,13 +322,20 @@
             </tr>
 
             <%
-                }
+                } //end while
+                } //end if rs != null
             %>
-
+			</table>
+        </td>
+    	</tr>
+		</table>
+        
             <%-- -------- Close Connection Code -------- --%>
             <%
                 // Close the ResultSet
                 rs.close();
+            
+            	//rs2.close();
             
             	// Close category ResultSelt
             	categoryResult.close();
@@ -306,11 +365,11 @@
                
                 // Close the Connection
                 conn.close();
-            } catch (SQLException e) {
-
-                // Wrap the SQL exception in a runtime exception to propagate
-                // it upwards
-                throw new RuntimeException(e);
+            } catch (Exception e) {
+                //throw new RuntimeException(e);
+            	
+            	//This will catch all exceptions and show this error message.
+                %><p><b>Failure to insert or update products. <br/> Please click on Products and try again.</b></p> <% 
             }
             finally {
                 // Release resources in a finally block in reverse-order of
@@ -321,6 +380,12 @@
                         rs.close();
                     } catch (SQLException e) { } // Ignore
                     rs = null;
+                }
+                if (rs2 != null) {
+                    try {
+                        rs2.close();
+                    } catch (SQLException e) { } // Ignore
+                    rs2 = null;
                 }
                 if (categoryResult != null) {
                     try {
@@ -367,57 +432,5 @@
                 }
             }
             %>
-        	</table>
-        
-        </td>
-    	</tr>
-		</table>
-		<p><u>Sort by Categories</u></p>
-		<% 
-		Connection conn2 = null;
-        PreparedStatement pstmt2 = null;
-        ResultSet rs2 = null;
-        
-        // Close the ResultSet
-        //rs2.close();
-        //conn2.close();
-        try {
-            // Registering Postgresql JDBC driver with the DriverManager
-            Class.forName("org.postgresql.Driver");
-
-            // Open a connection to the database using DriverManager
-            conn = DriverManager.getConnection(
-                "jdbc:postgresql://localhost/cse135?" +
-                "user=postgres&password=postgres");
-        } 
-        catch (SQLException e) {
-
-            // Wrap the SQL exception in a runtime exception to propagate
-            // it upwards
-            throw new RuntimeException(e);
-        }
-        finally {
-            // Release resources in a finally block in reverse-order of
-            // their creation
-            if (rs2 != null) {
-                try {
-                    rs2.close();
-                } catch (SQLException e) { } // Ignore
-                rs2 = null;
-            }
-            if (pstmt2 != null) {
-                try {
-                    pstmt2.close();
-                } catch (SQLException e) { } // Ignore
-                pstmt2 = null;
-            }
-            if (conn2 != null) {
-                try {
-                    conn2.close();
-                } catch (SQLException e) { } // Ignore
-                conn2 = null;
-            }
-        }
-        %>
 	</body>
 </html>

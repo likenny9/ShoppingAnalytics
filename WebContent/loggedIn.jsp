@@ -15,6 +15,8 @@
 		session.setAttribute("name",user); //Saves name for the session
 		String stringResults = ""; //Result of user input
 		String databaseName = null; //Result of database query
+		String role = null; //Role of customer
+				
 		
 		%>
 						
@@ -42,6 +44,13 @@
         	
         	while(rs.next()) {
             	databaseName = rs.getString("name");
+        	}
+        	
+        	//Code for either customer or owner
+        	Statement statement2 = conn.createStatement();
+        	rs = statement2.executeQuery("SELECT role FROM signup WHERE name='"+user+"'");
+        	while(rs.next()) {
+        		role = rs.getString("role");
         	}
         	
             // Close the ResultSet
@@ -112,15 +121,24 @@
 			
 			<% 
 			if(databaseName != null) {
-			%>
-			
-			<br/>Click here for Main Menu.<p/>
-			
-			<form method="GET" action="mainMenu.jsp">
-				<input name="action" id="buttonAttr" type="submit" value="Main Menu"/>
-			</form>
-			
-			<%
+				if(role.equals("owner")) {
+				%>
+					<br/>Click here for Main Menu.<p/>
+					
+					<form method="GET" action="mainMenu.jsp">
+						<input name="action" id="buttonAttr" type="submit" value="Main Menu"/>
+					</form>
+				<%
+				}
+				else {
+				%>
+					<br/>Click here for Main Menu.<p/>
+					
+					<form method="GET" action="mainMenuC.jsp">
+						<input name="action" id="buttonAttr" type="submit" value="Main Menu"/>
+					</form>
+				<%
+				}
 			}
 			%>
 		</div>
