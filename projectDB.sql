@@ -72,7 +72,7 @@ CREATE TABLE products (
     name text NOT NULL,
     sku text NOT NULL,
     category integer NOT NULL,
-    price numeric(7,2),
+    price numeric(15,2),
     owner integer NOT NULL,
     CONSTRAINT products_price_check CHECK ((price > (0)::numeric))
 );
@@ -99,6 +99,41 @@ ALTER TABLE public.products_id_seq OWNER TO kenny;
 --
 
 ALTER SEQUENCE products_id_seq OWNED BY products.id;
+
+
+--
+-- Name: purchases; Type: TABLE; Schema: public; Owner: kenny; Tablespace: 
+--
+
+CREATE TABLE purchases (
+    id integer NOT NULL,
+    name integer NOT NULL,
+    product integer NOT NULL,
+    quantity integer NOT NULL
+);
+
+
+ALTER TABLE public.purchases OWNER TO kenny;
+
+--
+-- Name: purchases_id_seq; Type: SEQUENCE; Schema: public; Owner: kenny
+--
+
+CREATE SEQUENCE purchases_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.purchases_id_seq OWNER TO kenny;
+
+--
+-- Name: purchases_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: kenny
+--
+
+ALTER SEQUENCE purchases_id_seq OWNED BY purchases.id;
 
 
 --
@@ -191,6 +226,13 @@ ALTER TABLE ONLY products ALTER COLUMN id SET DEFAULT nextval('products_id_seq':
 -- Name: id; Type: DEFAULT; Schema: public; Owner: kenny
 --
 
+ALTER TABLE ONLY purchases ALTER COLUMN id SET DEFAULT nextval('purchases_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: kenny
+--
+
 ALTER TABLE ONLY signup ALTER COLUMN id SET DEFAULT nextval('signup_id_seq'::regclass);
 
 
@@ -207,6 +249,10 @@ ALTER TABLE ONLY students ALTER COLUMN id SET DEFAULT nextval('students_id_seq':
 
 COPY categories (id, name, description) FROM stdin;
 1	cars	place to buy motor vehicles
+16	food	noms
+2	books	stuff to read
+18	planes	magical
+19	money	$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 \.
 
 
@@ -214,7 +260,7 @@ COPY categories (id, name, description) FROM stdin;
 -- Name: categories_id_seq; Type: SEQUENCE SET; Schema: public; Owner: kenny
 --
 
-SELECT pg_catalog.setval('categories_id_seq', 1, true);
+SELECT pg_catalog.setval('categories_id_seq', 23, true);
 
 
 --
@@ -222,7 +268,13 @@ SELECT pg_catalog.setval('categories_id_seq', 1, true);
 --
 
 COPY products (id, name, sku, category, price, owner) FROM stdin;
-1	Toyota Camry	A600	1	28000.00	11
+3	BoxCar	A100	1	299.00	11
+16	Nomnoms	NOM	16	10.00	30
+20	fighter jet	MZ11	18	10000.91	11
+11	AAA	SKUUUA	16	992.00	11
+21	$20 bill	LINCOLN	19	20.00	11
+22	paper	eat paper	16	1.00	11
+23	777	BESTPLANES	18	1000000000.00	11
 \.
 
 
@@ -230,7 +282,23 @@ COPY products (id, name, sku, category, price, owner) FROM stdin;
 -- Name: products_id_seq; Type: SEQUENCE SET; Schema: public; Owner: kenny
 --
 
-SELECT pg_catalog.setval('products_id_seq', 1, true);
+SELECT pg_catalog.setval('products_id_seq', 34, true);
+
+
+--
+-- Data for Name: purchases; Type: TABLE DATA; Schema: public; Owner: kenny
+--
+
+COPY purchases (id, name, product, quantity) FROM stdin;
+2	11	3	1
+\.
+
+
+--
+-- Name: purchases_id_seq; Type: SEQUENCE SET; Schema: public; Owner: kenny
+--
+
+SELECT pg_catalog.setval('purchases_id_seq', 2, true);
 
 
 --
@@ -244,6 +312,17 @@ COPY signup (id, name, role, age, state) FROM stdin;
 15	Brandon	owner	19	Alabama
 16	Eugene Lee	customer	19	South Dakota
 4	John	owner	21	Montana
+25	Johnny	owner	2	Kentucky
+26	Johnson	owner	2	Kentucky
+27	JohnsonR	owner	2	Kentucky
+28	Andrea	owner	2	Alaska
+29	Ab	owner	5	Delaware
+30	Abe	owner	5	Delaware
+31	Abes	owner	5	Delaware
+32	Oh	owner	20	Connecticut
+33	Ohe	owner	20	Connecticut
+34	Aka	owner	90	Washington
+35	Yu	owner	22	Colorado
 \.
 
 
@@ -251,7 +330,7 @@ COPY signup (id, name, role, age, state) FROM stdin;
 -- Name: signup_id_seq; Type: SEQUENCE SET; Schema: public; Owner: kenny
 --
 
-SELECT pg_catalog.setval('signup_id_seq', 24, true);
+SELECT pg_catalog.setval('signup_id_seq', 35, true);
 
 
 --
@@ -309,6 +388,14 @@ ALTER TABLE ONLY products
 
 
 --
+-- Name: purchases_pkey; Type: CONSTRAINT; Schema: public; Owner: kenny; Tablespace: 
+--
+
+ALTER TABLE ONLY purchases
+    ADD CONSTRAINT purchases_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: signup_name_key; Type: CONSTRAINT; Schema: public; Owner: kenny; Tablespace: 
 --
 
@@ -346,6 +433,22 @@ ALTER TABLE ONLY products
 
 ALTER TABLE ONLY products
     ADD CONSTRAINT products_owner_fkey FOREIGN KEY (owner) REFERENCES signup(id);
+
+
+--
+-- Name: purchases_name_fkey; Type: FK CONSTRAINT; Schema: public; Owner: kenny
+--
+
+ALTER TABLE ONLY purchases
+    ADD CONSTRAINT purchases_name_fkey FOREIGN KEY (name) REFERENCES signup(id);
+
+
+--
+-- Name: purchases_product_fkey; Type: FK CONSTRAINT; Schema: public; Owner: kenny
+--
+
+ALTER TABLE ONLY purchases
+    ADD CONSTRAINT purchases_product_fkey FOREIGN KEY (product) REFERENCES products(id);
 
 
 --
