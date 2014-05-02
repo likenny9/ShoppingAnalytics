@@ -4,9 +4,15 @@
 	</head>
 	
 	<body>
+		<table>
+		<tr>
+		 <%-- -------- Include menu HTML code -------- --%>
+	     <td valign="top"><jsp:include page="mainMenuC.jsp" /></td>
+	     <td width="75%">
 	    <%
-		String user  = request.getParameter("name"); //Gets name
-		session.setAttribute("name",user); //Saves name for the session
+		String user  = (String) session.getAttribute("name"); //Gets name
+	    int product = Integer.parseInt(request.getParameter("product_id"));
+		session.setAttribute("parsedProductID", product);
 		%>
 		<div style="text-align:center">
 		<h1> Product Order</h1>
@@ -14,18 +20,15 @@
 		</div>
        <%-- Import the java.sql package --%>
      <%@ page import="java.sql.*"%>
+     
      <%-- -------- Open Connection Code -------- --%>
      <%
+     
      
      Connection conn = null;
      PreparedStatement pstmt = null;
      ResultSet rs = null;
      ResultSet rs2 = null;
-     ResultSet signupIDResult = null;
-     ResultSet productResult = null;
-     int signupID = 0;
-     String productName = "";
-     int product = Integer.parseInt(request.getParameter("product_id"));
      
      try {
          // Registering Postgresql JDBC driver with the DriverManager
@@ -35,43 +38,6 @@
          conn = DriverManager.getConnection(
              "jdbc:postgresql://localhost/cse135?" +
              "user=postgres&password=postgres");
-     %>
-     
-     <%-- -------- Insert Code ------------------ --%>
-     <%
-     String action = request.getParameter("action");
-     // Check if an insertion is requested
-     if (action != null && action.equals("insert")) {
-         // Begin transaction
-         conn.setAutoCommit(false);
-         
-         //Find owner ID
-         Statement signupStatement = conn.createStatement();
-
-         signupIDResult = signupStatement.executeQuery("SELECT id FROM signup WHERE name='"+user+"'");
-         while(signupIDResult.next()) {
-         	signupID = signupIDResult.getInt("id");
-         }
-         
-         Statement productStatement = conn.createStatement();
-         productResult = productStatement.executeQuery("SELECT name FROM products WHERE id = '"+product+"'");
-         while(productResult.next()) {
-          	productName = productResult.getString("name");
-          }
-         pstmt = conn
-         .prepareStatement("INSERT INTO purchases (name, product, quantity) VALUES (?, ?, ?) ");
-
-         pstmt.setInt(1, signupID);
-         pstmt.setString(2, productName);
-         pstmt.setInt(3, Integer.parseInt(request.getParameter("quantityInput")));
-         int rowCount = pstmt.executeUpdate();
-         
-         
-         
-         // Commit transaction
-         conn.commit();
-         conn.setAutoCommit(true);
-     }
      %>
      
      
@@ -144,17 +110,16 @@
      %>
      </table>
 	 
-	 <%-- -------- Product Quantity ------------- --%>
+	 <%-- -------- Product ------------- --%>
 	 <%
 	 
 	    Statement statement2 = conn.createStatement();
 	 	// Use the created statement to SELECT
 	    // the attributes FROM the purchases table.
 	    
-	    //TODO change the p.id to something else.
 	    rs2 = statement2.executeQuery("SELECT p.name, p.sku, c.name AS category"
 	    		+ ", p.price, s.name AS owner FROM categories AS c, products AS"
-	    		+ " p, signup AS s WHERE p.id = 3 AND p.category = c.id AND "
+	    		+ " p, signup AS s WHERE p.id = '"+product+"' AND p.category = c.id AND "
 	    		+ "p.owner = s.id");
 	 %>
 	 
@@ -207,12 +172,12 @@
 	 %>
 	 </table>
 	 
+	 <%-- -------- Product Quantity ------------- --%>
     <div style="text-align:center">
     <p>How many would you like to buy?</p>
-		<form method="POST" action="mainMenu.jsp">
-			<input type="hidden" name="action" value="insert"/>
+		<form method="GET" action="productOrderingResults.jsp">
 			<p>Quantity: <input size="10" name="quantityInput" value=""/></p>
-			<input name="action" type="submit" value="Purchase"/>
+			<input type="submit" name="action" value="Add"/>
 		</form>
 	</div>
 	 
@@ -264,5 +229,8 @@
 	         }
 	     }
 	   %>
+	   </td>
+	   </tr>
+	   </table>
 	</body>
 </html>

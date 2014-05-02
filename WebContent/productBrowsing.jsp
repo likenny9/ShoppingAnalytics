@@ -180,6 +180,7 @@
                		<form action="productOrder.jsp" method="POST">
                     	<input type="hidden" name="action" value="buy"/>
                     	<input type="hidden" value="<%=rs.getInt("id")%>" name="product_id"/>
+                    	<% session.setAttribute("product_id", rs.getInt("id"));%>
                		 <%-- Button --%>
                		 <td>
                 		<input type="submit" value="Buy"/>
