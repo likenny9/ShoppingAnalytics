@@ -20,7 +20,7 @@
 			<input name="action" id="buttonAttr" type="submit" value="Main Menu"/>
 		</form>
 		
-		<form method="GET" action="browseProducts.jsp">
+		<form method="GET" action="productBrowsing.jsp">
 			<input name="action" id="buttonAttr" type="submit" value="Browse Products"/>
 		</form>
 		
