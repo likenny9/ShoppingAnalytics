@@ -19,11 +19,13 @@
         <%-- -------- Open Connection Code -------- --%>
         <%
         String user = (String) session.getAttribute("name"); //Gets name
+        String sortAttribute = (String) session.getAttribute("sortAttribute");
         
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         ResultSet rs2 = null;
+        ResultSet searchRS = null;
         String rsResults = null;
         
         ResultSet categoryResult = null;
@@ -69,15 +71,15 @@
         rs = categoryListStatement.executeQuery("SELECT name FROM categories");
         %>
         
-        <form action="products.jsp" method="POST">
-            <input type="hidden" name="action" value="sortAll"/>
-        	<input name="action" type="submit" value="All Products"/>
+        <form action="products.jsp" method="GET">
+            <input type="hidden" name="sortAction" value="sortAll"/>
+        	<input name="sortedAction" type="submit" value="All Products"/>
         </form>
         <%
         while(rs.next()) {
         	%>
-       	    <form action="products.jsp" method="POST">
-               <input type="hidden" name="action" value="sort"/>
+       	    <form action="products.jsp" method="GET">
+               <input type="hidden" name="sortAction" value="sort"/>
                <input name="sortedCats" type="submit" value="<%=rs.getString("name")%>"/>
 
         	</form>
@@ -91,6 +93,8 @@
             
 	        <%-- -------- INSERT Code -------- --%>
 	        <%
+	        	String searchAction = request.getParameter("searchAction");
+	        	String sortAction = request.getParameter("sortAction");
 	            String action = request.getParameter("action");
 	            // Check if an insertion is requested
 	            if (action != null && action.equals("insert")) {
@@ -200,16 +204,38 @@
                 Statement statement = conn.createStatement();
             
             	Statement categoryStatement = conn.createStatement();
-
-            	if(action != null && !(action.equals("sort"))) {
+             	
+            	//SHOW ALL PRODUCTS
+             	if(sortAction != null && !(sortAction.equals("sort"))) {
                 	rs = statement.executeQuery("SELECT products.id, products.name, sku, categories.name AS category_name, "
-                		+ "price, signup.name AS user_name FROM products, categories, signup "
-                		+ "WHERE products.owner=signup.id AND products.category = categories.id");
+                    		+ "price, signup.name AS user_name FROM products, categories, signup "
+                    		+ "WHERE products.owner=signup.id AND products.category = categories.id");
+            		//Saves the all products attribute so we can search from all products later
+                	sortAttribute = request.getParameter("sortedAction");
+            		session.setAttribute("sortAttribute",sortAttribute);
+             	}
+            	//SEARCH FROM ALL PRODUCTS
+             	else if((searchAction != null) && searchAction.equals("search") && (sortAttribute.equals("All Products")) && (request.getParameter("searchInput") != "")) {
+                    	
+                	rs = statement.executeQuery("SELECT products.id, products.name, sku, categories.name AS category_name, "
+                    		+ "price, signup.name AS user_name FROM products, categories, signup "
+                    		+ "WHERE products.owner=signup.id AND products.category = categories.id AND products.name LIKE '%"+request.getParameter("searchInput")+"%'");
             	}
-            	else if(action != null && action.equals("sort")) {
+            	//SEARCH FROM SPECIFIC CATEGORIES
+             	else if((searchAction != null) && searchAction.equals("search") && (request.getParameter("searchInput") != "")) {
+            		rs = statement.executeQuery("SELECT products.id, products.name, sku, categories.name AS category_name, "
+                        	+ "price, signup.name AS user_name FROM products, categories, signup "
+                        	+ "WHERE products.owner=signup.id AND products.category = categories.id "
+                        	+ "AND categories.name='"+sortAttribute+"' AND products.name LIKE '%"+request.getParameter("searchInput")+"%'");             		
+             	}
+				//SHOW FROM SPECIFIC CATEGORIES
+            	else if(sortAction != null && sortAction.equals("sort")) {
             		rs = statement.executeQuery("SELECT products.id, products.name, sku, categories.name AS category_name, "
                     	+ "price, signup.name AS user_name FROM products, categories, signup "
                     	+ "WHERE products.owner=signup.id AND products.category = categories.id AND categories.name='"+request.getParameter("sortedCats")+"'");
+            		//Saves the last category clicked so we can search from this specific category later
+            		sortAttribute = request.getParameter("sortedCats");
+            		session.setAttribute("sortAttribute",sortAttribute);
             	}
                 categoryResult = categoryStatement.executeQuery("SELECT name FROM categories");
                 
@@ -326,6 +352,14 @@
                 } //end if rs != null
             %>
 			</table>
+			
+			<%-- -------- SEARCH BOX Code -------- --%>
+	       <form action="products.jsp" method="POST">
+	           	<input type="hidden" name="searchAction" value="search"/>
+	          	<p>Product Search <input size="20" name="searchInput" value=""/>
+	       		<input name="searchAction" type="submit" value="Search"/></p>
+	       </form>
+	       
         </td>
     	</tr>
 		</table>
