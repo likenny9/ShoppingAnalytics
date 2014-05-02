@@ -147,7 +147,7 @@
             %>
 
             <tr>
-                <form action="shoppingCart.jsp" method="POST">
+                <form action="productOrder.jsp" method="POST">
                     <input type="hidden" name="action" value="buy"/>
                     <input type="hidden" name="product_id" value="<%=rs.getInt("id")%>"/>
 	
@@ -177,7 +177,7 @@
 	                </td>  
 	                
 	                <%-- Buy Button --%>
-               		<form action="shoppingCart.jsp" method="POST">
+               		<form action="productOrder.jsp" method="POST">
                     	<input type="hidden" name="action" value="buy"/>
                     	<input type="hidden" value="<%=rs.getInt("id")%>" name="product_id"/>
                		 <%-- Button --%>
