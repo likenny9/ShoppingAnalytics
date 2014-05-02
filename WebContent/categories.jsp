@@ -11,6 +11,12 @@
 	</head>
 
 <body>
+
+	<!-- Displays the name at the top. -->
+	<% String user = (String) session.getAttribute("name"); //Gets name 
+		if(user == null) {
+		   	response.setHeader("refresh", "0;URL=login.jsp");
+		}%>
 <b>Categories Management</b><p/>
 
 <table>

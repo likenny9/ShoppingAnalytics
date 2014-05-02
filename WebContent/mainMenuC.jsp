@@ -11,7 +11,10 @@
 	</head>
 	<body>
 		<!-- Displays the name at the top. -->
-		<% String user = (String) session.getAttribute("name"); //Gets name %>
+		<% String user = (String) session.getAttribute("name"); //Gets name 
+			if(user == null) {
+			   	response.setHeader("refresh", "0;URL=login.jsp");
+			}%>
 		<b>Hello <%=user%></b>
 		
 		<br/>What to do?<p/>

@@ -3,7 +3,11 @@
 		<title>Products</title>
 	</head>
 	<body>
-		
+		<!-- Displays the name at the top. -->
+		<% String auser = (String) session.getAttribute("name"); //Gets name 
+			if(auser == null) {
+			   	response.setHeader("refresh", "0;URL=login.jsp");
+			}%>
 		<b>Products Management</b><p/>
 		
 		<table>
