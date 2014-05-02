@@ -27,7 +27,7 @@
 			<input name="action" id="buttonAttr" type="submit" value="Browse Products"/>
 		</form>
 		
-		<form method="GET" action="productOrder.jsp">
+		<form method="GET" action="buyShoppingCart.jsp">
 			<input name="action" id="buttonAttr" type="submit" value="Shopping Cart"/>
 		</form>
 

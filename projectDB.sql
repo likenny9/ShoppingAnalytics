@@ -252,7 +252,8 @@ COPY categories (id, name, description) FROM stdin;
 16	food	noms
 2	books	stuff to read
 18	planes	magical
-19	money	$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+19	money	$$$$$$$$$$$$$$$$$$
+24	beverages	slurpeeeee
 \.
 
 
@@ -260,7 +261,7 @@ COPY categories (id, name, description) FROM stdin;
 -- Name: categories_id_seq; Type: SEQUENCE SET; Schema: public; Owner: kenny
 --
 
-SELECT pg_catalog.setval('categories_id_seq', 23, true);
+SELECT pg_catalog.setval('categories_id_seq', 24, true);
 
 
 --
@@ -273,8 +274,9 @@ COPY products (id, name, sku, category, price, owner) FROM stdin;
 20	fighter jet	MZ11	18	10000.91	11
 11	AAA	SKUUUA	16	992.00	11
 21	$20 bill	LINCOLN	19	20.00	11
-22	paper	eat paper	16	1.00	11
 23	777	BESTPLANES	18	1000000000.00	11
+22	paper	eat paper	16	1.00	11
+35	water	yums	24	2.00	11
 \.
 
 
@@ -282,7 +284,7 @@ COPY products (id, name, sku, category, price, owner) FROM stdin;
 -- Name: products_id_seq; Type: SEQUENCE SET; Schema: public; Owner: kenny
 --
 
-SELECT pg_catalog.setval('products_id_seq', 34, true);
+SELECT pg_catalog.setval('products_id_seq', 37, true);
 
 
 --
@@ -290,7 +292,10 @@ SELECT pg_catalog.setval('products_id_seq', 34, true);
 --
 
 COPY purchases (id, name, product, quantity) FROM stdin;
-2	11	3	1
+10	16	22	1
+11	36	35	2
+12	36	35	2
+13	36	20	1
 \.
 
 
@@ -298,7 +303,7 @@ COPY purchases (id, name, product, quantity) FROM stdin;
 -- Name: purchases_id_seq; Type: SEQUENCE SET; Schema: public; Owner: kenny
 --
 
-SELECT pg_catalog.setval('purchases_id_seq', 2, true);
+SELECT pg_catalog.setval('purchases_id_seq', 13, true);
 
 
 --
@@ -323,6 +328,7 @@ COPY signup (id, name, role, age, state) FROM stdin;
 33	Ohe	owner	20	Connecticut
 34	Aka	owner	90	Washington
 35	Yu	owner	22	Colorado
+36	KennyC	customer	19	California
 \.
 
 
@@ -330,7 +336,7 @@ COPY signup (id, name, role, age, state) FROM stdin;
 -- Name: signup_id_seq; Type: SEQUENCE SET; Schema: public; Owner: kenny
 --
 
-SELECT pg_catalog.setval('signup_id_seq', 35, true);
+SELECT pg_catalog.setval('signup_id_seq', 36, true);
 
 
 --
