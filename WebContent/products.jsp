@@ -174,6 +174,14 @@
 	                pstmt.setInt(5, signupIDUpdate);
                     pstmt.setInt(6, Integer.parseInt(request.getParameter("id")));
                     int rowCount = pstmt.executeUpdate();
+                    
+	                %>
+	                <b><font size="10">UPDATE CONFIRMATION:</font></b><br/>
+	                <b>Name:</b> <%=request.getParameter("name")%> -
+	                <b>SKU:</b> <%=request.getParameter("sku")%> -
+	                <b>Category:</b> <%=request.getParameter("category")%> -
+	                <b>Price:</b> <%=request.getParameter("price")%>          
+	                <% 
 
                     // Commit transaction
                     conn.commit();
@@ -188,6 +196,10 @@
 
                     // Begin transaction
                     conn.setAutoCommit(false);
+                    
+	                %>
+	                <b><font size="10">PRODUCT DELETED</font></b><br/>      
+	                <% 
 
                     // Create the prepared statement and use it to
                     // DELETE products FROM the products table.
@@ -196,7 +208,7 @@
 
                     pstmt.setInt(1, Integer.parseInt(request.getParameter("id")));
                     int rowCount = pstmt.executeUpdate();
-
+	                
                     // Commit transaction
                     conn.commit();
                     conn.setAutoCommit(true);
@@ -207,16 +219,17 @@
             <%
                 Statement statement = conn.createStatement();
             
-            	Statement categoryStatement = conn.createStatement();
-             	
+            	Statement categoryStatement = conn.createStatement(); 
             	//SHOW ALL PRODUCTS
-             	if(sortAction != null && !(sortAction.equals("sort"))) {
+             	if((sortAction != null && !(sortAction.equals("sort"))) || (action != null && action.equals("Products Management"))) {
                 	rs = statement.executeQuery("SELECT products.id, products.name, sku, categories.name AS category_name, "
                     		+ "price, signup.name AS user_name FROM products, categories, signup "
                     		+ "WHERE products.owner=signup.id AND products.category = categories.id");
             		//Saves the all products attribute so we can search from all products later
-                	sortAttribute = request.getParameter("sortedAction");
-            		session.setAttribute("sortAttribute",sortAttribute);
+            		if(action == null) { //Only if we didn't click Products Management
+                		sortAttribute = request.getParameter("sortedAction");
+            			session.setAttribute("sortAttribute",sortAttribute);
+            		}
              	}
             	//SEARCH FROM ALL PRODUCTS
              	else if((searchAction != null) && searchAction.equals("search") && (sortAttribute.equals("All Products")) && (request.getParameter("searchInput") != "")) {

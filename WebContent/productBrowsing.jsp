@@ -94,13 +94,15 @@
             	Statement categoryStatement = conn.createStatement();
              	
             	//SHOW ALL PRODUCTS
-             	if(sortAction != null && !(sortAction.equals("sort"))) {
+              	if((sortAction != null && !(sortAction.equals("sort"))) || (action != null && action.equals("Browse Products"))) {
                 	rs = statement.executeQuery("SELECT products.id, products.name, sku, categories.name AS category_name, "
                     		+ "price, signup.name AS user_name FROM products, categories, signup "
                     		+ "WHERE products.owner=signup.id AND products.category = categories.id");
             		//Saves the all products attribute so we can search from all products later
-                	sortAttribute = request.getParameter("sortedAction");
-            		session.setAttribute("sortAttribute",sortAttribute);
+            		if(action == null) { //Only if we didn't click Products Management
+                		sortAttribute = request.getParameter("sortedAction");
+            			session.setAttribute("sortAttribute",sortAttribute);
+            		}
              	}
             	//SEARCH FROM ALL PRODUCTS
              	else if((searchAction != null) && searchAction.equals("search") && (sortAttribute.equals("All Products")) && (request.getParameter("searchInput") != "")) {

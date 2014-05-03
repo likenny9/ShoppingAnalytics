@@ -12,7 +12,7 @@
 	<body>
 		<%
 		String user  = request.getParameter("name"); //Gets name
-		session.setAttribute("name",user); //Saves name for the session
+
 		String stringResults = ""; //Result of user input
 		String databaseName = null; //Result of database query
 		String role = null; //Role of customer
@@ -113,6 +113,7 @@
         }
         else {
         	stringResults = "Hello " + databaseName;
+    		session.setAttribute("name",databaseName); //Saves name for the session
         }
 		%>
 	
